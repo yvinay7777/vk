@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Resume Navigator — Ignite Your Career</title>
+  <meta name="description" content="AI-powered resume scanner, job matcher and career coach. Upload your resume, explore remote jobs and get AI-driven improvement suggestions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #f97316;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --dark: #080303;
+      --dark2: #0e0606;
+      --slate: #1e1a1a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--dark);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* Canvas Background */
+    #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* Ambient gradients */
+    .ambient {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(249,115,22,0.10) 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(239,68,68,0.07) 0%, transparent 45%);
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2.5rem;
+      background: rgba(8,3,3,0.7);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(249,115,22,0.10);
+    }
+
+    .nav-logo {
+      font-size: 1.15rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase;
+      background: linear-gradient(90deg, #f97316, #fbbf24, #ef4444);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: none;
+    }
+
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a {
+      color: #cbd5e1; text-decoration: none; font-size: 0.85rem; font-weight: 600;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #f97316; }
+
+    .btn-launch {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.6rem 1.4rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      color: #fff; text-decoration: none; border: none; cursor: pointer;
+      box-shadow: 0 0 24px rgba(249,115,22,0.35);
+      transition: all 0.25s;
+    }
+    .btn-launch:hover {
+      box-shadow: 0 0 36px rgba(249,115,22,0.55);
+      transform: translateY(-1px);
+    }
+
+    /* HERO */
+    .hero {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 7rem 2rem 4rem;
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 1.2rem; border-radius: 999px; margin-bottom: 1.5rem;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+      background: rgba(249,115,22,0.10); border: 1px solid rgba(249,115,22,0.25);
+      color: #f97316;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #f97316;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      font-weight: 900; line-height: 1.07; letter-spacing: -0.02em;
+      max-width: 900px; margin-bottom: 1.5rem;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #f97316, #fbbf24, #ef4444);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      max-width: 620px; font-size: 1.1rem; color: #94a3b8; line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 2rem; border-radius: 999px; font-weight: 700; font-size: 0.95rem;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      color: #fff; text-decoration: none;
+      box-shadow: 0 0 32px rgba(249,115,22,0.4);
+      transition: all 0.25s;
+    }
+    .btn-primary:hover { box-shadow: 0 0 48px rgba(249,115,22,0.6); transform: translateY(-2px); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 2rem; border-radius: 999px; font-weight: 700; font-size: 0.95rem;
+      background: transparent; color: #f97316; text-decoration: none;
+      border: 1.5px solid rgba(249,115,22,0.35);
+      transition: all 0.25s;
+    }
+    .btn-secondary:hover { background: rgba(249,115,22,0.08); border-color: rgba(249,115,22,0.6); }
+
+    /* STATS */
+    .stats {
+      position: relative; z-index: 10;
+      display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;
+      padding: 0 2rem 5rem;
+    }
+
+    .stat-card {
+      background: rgba(14,6,6,0.7); border: 1px solid rgba(249,115,22,0.12);
+      border-radius: 1.5rem; padding: 1.5rem 2.5rem; text-align: center;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s;
+    }
+    .stat-card:hover { border-color: rgba(249,115,22,0.35); transform: translateY(-3px); }
+
+    .stat-num {
+      font-size: 2.5rem; font-weight: 900; font-family: 'Space Grotesk', sans-serif;
+      background: linear-gradient(135deg, #f97316, #fbbf24);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label { font-size: 0.78rem; color: #64748b; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.3rem; }
+
+    /* FEATURES */
+    .section {
+      position: relative; z-index: 10;
+      max-width: 1100px; margin: 0 auto; padding: 5rem 2rem;
+    }
+
+    .section-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;
+      color: #f97316; margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem;
+    }
+
+    .section-desc { font-size: 1rem; color: #64748b; max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
+
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: rgba(14,6,6,0.7); border: 1px solid rgba(249,115,22,0.12);
+      border-radius: 2rem; padding: 2rem;
+      backdrop-filter: blur(12px); transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+    }
+    .feature-card:hover {
+      border-color: rgba(249,115,22,0.35);
+      box-shadow: 0 20px 50px rgba(249,115,22,0.10);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 52px; height: 52px; border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(239,68,68,0.10));
+      border: 1px solid rgba(249,115,22,0.20);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.2rem;
+    }
+
+    .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.875rem; color: #64748b; line-height: 1.65; margin-bottom: 1.2rem; }
+    .feature-card a { font-size: 0.82rem; font-weight: 700; color: #f97316; text-decoration: none; transition: color 0.2s; }
+    .feature-card a:hover { color: #fbbf24; }
+
+    /* TECH STACK */
+    .tech-grid {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem;
+    }
+
+    .tech-tag {
+      padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+      background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.18);
+      color: #fb923c;
+    }
+
+    /* SCREENSHOT / PREVIEW MOCKUP */
+    .preview-box {
+      position: relative; z-index: 10;
+      max-width: 900px; margin: 0 auto 5rem; padding: 0 2rem;
+    }
+
+    .mockup {
+      background: rgba(14,6,6,0.80); border: 1px solid rgba(249,115,22,0.20);
+      border-radius: 2rem; overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 60px rgba(249,115,22,0.08);
+    }
+
+    .mockup-bar {
+      background: rgba(8,3,3,0.8); padding: 1rem 1.5rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      border-bottom: 1px solid rgba(249,115,22,0.08);
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ef4444; }
+    .dot-y { background: #f59e0b; }
+    .dot-g { background: #22c55e; }
+
+    .mockup-url {
+      flex: 1; background: rgba(249,115,22,0.06); border: 1px solid rgba(249,115,22,0.12);
+      border-radius: 8px; padding: 0.3rem 0.8rem; font-size: 0.75rem; color: #64748b;
+      margin-left: 0.75rem;
+    }
+
+    .mockup-content {
+      padding: 2.5rem; display: grid; gap: 1.5rem;
+    }
+
+    .mockup-hero-text h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .mockup-hero-text p { color: #64748b; font-size: 0.85rem; }
+
+    .mockup-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
+    .mockup-card {
+      background: rgba(8,3,3,0.6); border: 1px solid rgba(249,115,22,0.10);
+      border-radius: 1rem; padding: 1rem;
+    }
+    .mockup-card .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #64748b; }
+    .mockup-card .value { font-size: 1.6rem; font-weight: 900; margin-top: 0.3rem; }
+    .mockup-card .value.orange { color: #f97316; }
+    .mockup-card .value.red { color: #ef4444; }
+    .mockup-card .value.green { color: #22c55e; }
+
+    .mockup-bar-chart { display: flex; align-items: flex-end; gap: 0.5rem; height: 60px; }
+    .bar {
+      flex: 1; border-radius: 4px 4px 0 0;
+      background: linear-gradient(180deg, rgba(249,115,22,0.6), rgba(249,115,22,0.2));
+      animation: growBar 1.5s ease-out forwards;
+    }
+    @keyframes growBar { from { transform: scaleY(0); transform-origin: bottom; } to { transform: scaleY(1); } }
+
+    /* CTA SECTION */
+    .cta-section {
+      position: relative; z-index: 10;
+      max-width: 800px; margin: 0 auto 6rem; padding: 0 2rem; text-align: center;
+    }
+
+    .cta-card {
+      background: rgba(14,6,6,0.80); border: 1px solid rgba(249,115,22,0.25);
+      border-radius: 2.5rem; padding: 4rem 3rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 60px rgba(249,115,22,0.08);
+    }
+
+    .cta-card h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; margin-bottom: 1rem; }
+    .cta-card p { color: #64748b; font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.7; }
+
+    /* FOOTER */
+    footer {
+      position: relative; z-index: 10;
+      text-align: center; padding: 2rem;
+      border-top: 1px solid rgba(249,115,22,0.07);
+      font-size: 0.8rem; color: #374151;
+    }
+
+    footer a { color: #f97316; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #080303; }
+    ::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.25); border-radius: 3px; }
+
+    @media (max-width: 640px) {
+      nav { padding: 1rem 1.2rem; }
+      .nav-links { display: none; }
+      .mockup-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particles Canvas -->
+  <canvas id="particles"></canvas>
+  <div class="ambient"></div>
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-logo">🔥 AI Resume Navigator</span>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#tech">Tech Stack</a>
+      <a href="https://github.com/yvinay7777/vk" target="_blank">GitHub</a>
+    </div>
+    <a href="https://resume-navigator-master.vercel.app" target="_blank" class="btn-launch">
+      🚀 Launch App
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Live on Vercel · Combustion Core Active
+    </div>
+    <h1>Ignite your career path with our <span class="gradient-text">AI Navigator</span></h1>
+    <p>Scan your credentials, consult our conversational AI advisor, and explore active global job telemetry feeds — all powered by Next.js, Supabase and OpenAI.</p>
+    <div class="hero-cta">
+      <a href="https://resume-navigator-master.vercel.app" target="_blank" class="btn-primary">
+        🔥 Launch Live App
+      </a>
+      <a href="https://github.com/yvinay7777/vk" target="_blank" class="btn-secondary">
+        ⭐ View Source
+      </a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num">100+</div>
+      <div class="stat-label">Live Remote Jobs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">AI</div>
+      <div class="stat-label">Powered Coach</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">PDF</div>
+      <div class="stat-label">Resume Parser</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">Free</div>
+      <div class="stat-label">To Use</div>
+    </div>
+  </div>
+
+  <!-- PREVIEW MOCKUP -->
+  <div class="preview-box">
+    <div class="mockup">
+      <div class="mockup-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="mockup-url">resume-navigator-master.vercel.app</div>
+      </div>
+      <div class="mockup-content">
+        <div class="mockup-hero-text">
+          <h2>🔥 AI Resume Navigator <span style="color:#f97316">Dashboard</span></h2>
+          <p>Upload your resume to unlock your career telemetry insights</p>
+        </div>
+        <div class="mockup-cards">
+          <div class="mockup-card">
+            <div class="label">Job Matches</div>
+            <div class="value orange">127</div>
+          </div>
+          <div class="mockup-card">
+            <div class="label">Profile Score</div>
+            <div class="value red">85</div>
+          </div>
+          <div class="mockup-card">
+            <div class="label">AI Coach</div>
+            <div class="value green">Active</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.7rem;color:#64748b;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.75rem;">Skill Match Telemetry</div>
+          <div class="mockup-bar-chart">
+            <div class="bar" style="height:40%;animation-delay:0.1s"></div>
+            <div class="bar" style="height:70%;animation-delay:0.2s"></div>
+            <div class="bar" style="height:55%;animation-delay:0.3s"></div>
+            <div class="bar" style="height:90%;animation-delay:0.4s"></div>
+            <div class="bar" style="height:65%;animation-delay:0.5s"></div>
+            <div class="bar" style="height:80%;animation-delay:0.6s"></div>
+            <div class="bar" style="height:45%;animation-delay:0.7s"></div>
+            <div class="bar" style="height:75%;animation-delay:0.8s"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <p class="section-label">Core Modules</p>
+    <h2 class="section-title">Everything you need to <span class="gradient-text">launch your career</span></h2>
+    <p class="section-desc">A complete career toolkit built on the latest web technologies with a beautiful fire-themed UI.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3>Stellar Scanner</h3>
+        <p>Upload PDF or DOCX resumes. Instantly extract skills, education tags, experience summary and calculate your career telemetry score.</p>
+        <a href="https://resume-navigator-master.vercel.app/resume" target="_blank">Open Scanner →</a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>AI Career Coach</h3>
+        <p>Multi-turn chat with an OpenAI-powered career advisor. Get resume feedback, interview tips, and skill recommendations.</p>
+        <a href="https://resume-navigator-master.vercel.app/assistant" target="_blank">Open Coach →</a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Market Telemetry</h3>
+        <p>Explore 100+ live remote job feeds from Remotive and RemoteOK. Filter, search and match jobs against your resume skills.</p>
+        <a href="https://resume-navigator-master.vercel.app/jobs" target="_blank">Explore Jobs →</a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Secure Auth</h3>
+        <p>Email and Google OAuth authentication powered by Supabase. Your data is private and encrypted at rest.</p>
+        <a href="https://resume-navigator-master.vercel.app/auth" target="_blank">Sign In →</a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Job Matching</h3>
+        <p>AI computes a sync score between your skills and each job's requirements. Instantly see High / Medium / Low match ratings.</p>
+        <a href="https://resume-navigator-master.vercel.app/jobs" target="_blank">See Matches →</a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💡</div>
+        <h3>AI Suggestions</h3>
+        <p>Generate tailored resume improvement suggestions for any job listing using GPT-4o-mini — one click per job card.</p>
+        <a href="https://resume-navigator-master.vercel.app/jobs" target="_blank">Try It →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section class="section" id="tech">
+    <p class="section-label">Technology</p>
+    <h2 class="section-title">Built with <span class="gradient-text">modern tech</span></h2>
+    <p class="section-desc">Production-grade stack using the latest frameworks, databases and AI APIs.</p>
+    <div class="tech-grid">
+      <span class="tech-tag">Next.js 14</span>
+      <span class="tech-tag">React 18</span>
+      <span class="tech-tag">Tailwind CSS</span>
+      <span class="tech-tag">Supabase</span>
+      <span class="tech-tag">OpenAI GPT-4o-mini</span>
+      <span class="tech-tag">PDF.js</span>
+      <span class="tech-tag">Mammoth.js</span>
+      <span class="tech-tag">Remotive API</span>
+      <span class="tech-tag">RemoteOK API</span>
+      <span class="tech-tag">Vercel</span>
+      <span class="tech-tag">Canvas Particles</span>
+      <span class="tech-tag">Google Fonts</span>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-card">
+      <h2>Ready to ignite your <span class="gradient-text">career engine?</span></h2>
+      <p>The app is live, free to use, and runs in demo mode even without API keys.<br/>Sign up and upload your resume to get started in seconds.</p>
+      <a href="https://resume-navigator-master.vercel.app" target="_blank" class="btn-primary" style="font-size:1rem;padding:1rem 2.5rem;">
+        🚀 Launch the App Now
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    AI Resume Navigator &copy; 2026 &nbsp;·&nbsp;
+    <a href="https://github.com/yvinay7777/vk" target="_blank">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://resume-navigator-master.vercel.app" target="_blank">Live App</a>
+    &nbsp;·&nbsp; Deployed on Vercel. Thermal core operational.
+  </footer>
+
+  <!-- Particles Script -->
+  <script>
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    const embers = [];
+    const COUNT = 80;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const COLORS = ['249,115,22', '239,68,68', '245,158,11'];
+    for (let i = 0; i < COUNT; i++) {
+      embers.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: Math.random() * 1.8 + 0.4,
+        alpha: Math.random(),
+        aSpeed: 0.008 + Math.random() * 0.015,
+        wobble: Math.random() * Math.PI,
+        wSpeed: 0.01 + Math.random() * 0.03,
+        vy: 0.3 + Math.random() * 0.9,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      embers.forEach(e => {
+        e.y -= e.vy;
+        e.wobble += e.wSpeed;
+        e.x += Math.sin(e.wobble) * 0.25;
+        e.alpha += e.aSpeed;
+        if (e.alpha > 1 || e.alpha < 0.1) e.aSpeed = -e.aSpeed;
+        if (e.y < -10) { e.y = canvas.height + 10; e.x = Math.random() * canvas.width; }
+        if (e.x < -10) e.x = canvas.width + 10;
+        if (e.x > canvas.width + 10) e.x = -10;
+
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${e.color},${Math.max(0.1, Math.min(e.alpha, 0.8))})`;
+        ctx.shadowColor = `rgba(${e.color},0.5)`;
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
