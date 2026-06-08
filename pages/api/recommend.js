@@ -1,6 +1,4 @@
-import OpenAI from 'openai';
-
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+import { getAIClient } from '../../lib/ai';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -9,15 +7,13 @@ export default async function handler(req, res) {
 
     const { resumeText, jobTitle, company, jobDescription, skills = [] } = req.body;
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    const isOAIConfigured = apiKey && apiKey.trim() !== '' && !apiKey.includes('your_');
+    const { client, model, configured, provider } = getAIClient();
 
-    if (!isOAIConfigured) {
+    if (!configured) {
         const matchScore = (skills.includes('React') || skills.includes('JavaScript') || skills.includes('Next.js')) ? 'High' : 'Medium';
         const text = `1. Match Classification: ${matchScore} Match\n2. Missing Skills: AWS, Docker, CI/CD pipelines\n3. Improvement Suggestion: Tailor your summary section to explicitly mention experience with server-side rendering and scalable state management to align perfectly with ${company}'s ${jobTitle} requirements.`;
         return res.status(200).json({ text });
     }
-
 
     if (!resumeText || !jobTitle || !company || !jobDescription) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -39,7 +35,7 @@ Provide:
 Return the response in simple JSON-like text.`;
 
         const response = await client.chat.completions.create({
-            model: 'gpt-4o-mini',
+            model: model,
             messages: [{ role: 'user', content: prompt }],
             max_tokens: 220,
         });
@@ -48,6 +44,13 @@ Return the response in simple JSON-like text.`;
         return res.status(200).json({ text });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: 'AI recommendation generation failed' });
+        const providerName = provider === 'gemini' ? 'Gemini' : 'OpenAI';
+        
+        if (error.code === 'insufficient_quota' || (error.message && error.message.toLowerCase().includes('quota')) || error.status === 429) {
+            const matchScore = (skills.includes('React') || skills.includes('JavaScript') || skills.includes('Next.js')) ? 'High' : 'Medium';
+            const text = `⚠️ ${providerName} API Quota Exceeded (Demo Mode fallback):\n\n1. Match Classification: ${matchScore} Match\n2. Missing Skills: AWS, Docker, CI/CD pipelines\n3. Improvement Suggestion: Tailor your summary section to explicitly mention experience with server-side rendering and scalable state management to align perfectly with ${company}'s ${jobTitle} requirements.`;
+            return res.status(200).json({ text });
+        }
+        return res.status(500).json({ error: `AI recommendation generation (${providerName}) failed` });
     }
 }
