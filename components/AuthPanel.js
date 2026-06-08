@@ -28,14 +28,14 @@ export default function AuthPanel({ user, onSignIn, onSignUp, onSignOut, onGoogl
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-orange-400">Control Interface</p>
-          <h2 className="mt-2 text-2xl font-bold text-white tracking-tight">Access Key Verification</h2>
+          <h2 className="mt-2 text-2xl font-bold text-white tracking-tight">Account Access</h2>
         </div>
         {user && (
           <button
             onClick={onSignOut}
             className="rounded-full border border-orange-400/40 px-4 py-2 text-xs text-orange-100 transition hover:border-orange-300/70 hover:bg-orange-400/10"
           >
-            Disconnect
+            Sign Out
           </button>
         )}
       </div>
@@ -43,12 +43,12 @@ export default function AuthPanel({ user, onSignIn, onSignUp, onSignOut, onGoogl
       {user ? (
         <div className="space-y-3 text-sm text-orange-100/80">
           <p>Verified account signature: <span className="font-semibold text-white">{user.email}</span>.</p>
-          <p>Access granted. Thermal controls initialized.</p>
+          <p>Access granted. Dashboard controls active.</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-orange-200/70">Email Node</label>
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-orange-200/70">Email Address</label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -59,14 +59,14 @@ export default function AuthPanel({ user, onSignIn, onSignUp, onSignOut, onGoogl
             />
           </div>
           <div>
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-orange-200/70">Secure Code (Password)</label>
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-orange-200/70">Password</label>
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-400/80"
               type="password"
               required
-              placeholder="Input access password"
+              placeholder="Enter your password"
             />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
@@ -74,7 +74,7 @@ export default function AuthPanel({ user, onSignIn, onSignUp, onSignOut, onGoogl
               type="submit"
               className="rounded-full bg-gradient-to-r from-orange-500 to-red-600 px-6 py-3 text-sm font-semibold text-white shadow-glow hover:from-orange-400 hover:to-red-500 transition-all"
             >
-              {mode === 'signup' ? 'Create Credentials' : 'Verify Access'}
+              {mode === 'signup' ? 'Sign Up' : 'Sign In'}
             </button>
             {/* Google OAuth button */}
             <button
@@ -94,7 +94,7 @@ export default function AuthPanel({ user, onSignIn, onSignUp, onSignOut, onGoogl
               className="text-xs text-orange-300 underline underline-offset-4 transition hover:text-orange-200"
               onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
             >
-              {mode === 'signup' ? 'Use existing credentials' : 'Generate new credentials'}
+              {mode === 'signup' ? 'Already have an account? Sign In' : 'Don\'t have an account? Sign Up'}
             </button>
           </div>
           {message && <p className="text-sm text-amber-300 mt-2">{message}</p>}

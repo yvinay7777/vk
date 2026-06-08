@@ -22,11 +22,11 @@ export default function Home({ user, jobs, statusMessage }) {
           <div className="flex flex-wrap gap-4 pt-2">
             {user ? (
               <Link href="/resume" className="rounded-full bg-gradient-to-r from-orange-500 to-red-600 px-8 py-3.5 text-sm font-semibold text-white shadow-glow hover:from-orange-400 hover:to-red-500 transition-all">
-                Enter Command Bridge
+                Go to Dashboard
               </Link>
             ) : (
               <Link href="/auth" className="rounded-full bg-gradient-to-r from-orange-500 to-red-600 px-8 py-3.5 text-sm font-semibold text-white shadow-glow hover:from-orange-400 hover:to-red-500 transition-all">
-                Authenticate Engine
+                Sign In / Register
               </Link>
             )}
             <Link href="/jobs" className="rounded-full border border-orange-500/30 bg-orange-950/15 px-8 py-3.5 text-sm font-semibold text-orange-200 hover:bg-orange-950/30 hover:border-orange-400/50 transition-all hover:shadow-orangeGlow">

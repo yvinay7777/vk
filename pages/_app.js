@@ -342,7 +342,7 @@ function MyApp({ Component, pageProps }) {
                   onClick={logout}
                   className="rounded-full bg-red-500/20 border border-red-500/30 px-4 py-1.5 text-xs text-red-200 transition hover:bg-red-500/35"
                 >
-                  Disconnect
+                  Sign Out
                 </button>
               </div>
             ) : (
@@ -350,7 +350,7 @@ function MyApp({ Component, pageProps }) {
                 href="/auth"
                 className="rounded-full bg-gradient-to-r from-orange-500 to-red-600 px-5 py-2 text-xs font-bold text-white shadow-glow hover:from-orange-400 hover:to-red-500 transition"
               >
-                Access Control
+                Login / Register
               </Link>
             )}
           </div>
