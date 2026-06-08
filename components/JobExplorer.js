@@ -83,7 +83,7 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
         <div className="grid gap-6 md:grid-cols-2">
           {filteredJobs.map((job) => {
             const { score, label, missingSkills, jobSkills } = computeMatch(resume, job);
-            const saved = savedJobs.includes(`${job.source}-${job.id}`);
+            const saved = savedJobs.some((j) => j.jobId === `${job.source}-${job.id}`);
             const recommendation = recommendations?.[`${job.source}-${job.id}`];
 
             return (
@@ -139,7 +139,7 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
                     rel="noreferrer"
                     className="flex-1 text-center rounded-full bg-slate-950 border border-white/10 px-4 py-2 text-xs text-slate-300 transition hover:border-orange-500/30 hover:text-orange-200"
                   >
-                    View Node
+                    Apply Now
                   </a>
                   
                   <button

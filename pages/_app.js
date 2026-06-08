@@ -70,10 +70,15 @@ function MyApp({ Component, pageProps }) {
       router.push('/resume');
       return;
     }
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
-    setStatusMessage('Secure account created.');
-    router.push('/resume');
+    
+    if (data?.session) {
+      setStatusMessage('Secure account created.');
+      router.push('/resume');
+    } else {
+      setStatusMessage('Account registered! A verification email has been sent. Please check your inbox and confirm your email before signing in.');
+    }
   };
 
   const signIn = async (email, password) => {
