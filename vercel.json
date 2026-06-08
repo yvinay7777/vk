@@ -1,13 +1,5 @@
 {
-    "version": 3,
-    "builds": [{
-        "src": "next.config.js",
-        "use": "@vercel/next"
-    }],
-    "routes": [{
-        "src": "/(.*)",
-        "dest": "/$1"
-    }],
+    "version": 2,
     "crons": [{
         "path": "/api/fetch-jobs",
         "schedule": "*/15 * * * *"
