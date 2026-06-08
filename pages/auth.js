@@ -2,7 +2,7 @@ import AuthPanel from '../components/AuthPanel';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-export default function AuthPage({ user, signIn, signUp, logout, onGoogleSignIn }) {
+export default function AuthPage({ user, signIn, signUp, logout, onGoogleSignIn, onGoogleSignInToken }) {
   const router = useRouter();
 
   // If user is already authenticated, redirect to resume dashboard
@@ -21,6 +21,7 @@ export default function AuthPage({ user, signIn, signUp, logout, onGoogleSignIn 
           onSignUp={signUp} 
           onSignOut={logout} 
           onGoogleSignIn={onGoogleSignIn} 
+          onGoogleSignInToken={onGoogleSignInToken}
         />
       </div>
     </div>

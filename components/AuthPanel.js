@@ -1,11 +1,59 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function AuthPanel({ user, onSignIn, onSignUp, onSignOut, onGoogleSignIn }) {
+export default function AuthPanel({ user, onSignIn, onSignUp, onSignOut, onGoogleSignIn, onGoogleSignInToken }) {
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const initializeGoogle = () => {
+      if (typeof window !== 'undefined' && window.google?.accounts?.id) {
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+        if (!clientId || clientId.trim() === '' || clientId.includes('your_')) {
+          console.warn('Google Client ID (NEXT_PUBLIC_GOOGLE_CLIENT_ID) not configured in env variables.');
+          return;
+        }
+
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response) => {
+            try {
+              if (onGoogleSignInToken) {
+                await onGoogleSignInToken(response.credential);
+              }
+            } catch (err) {
+              console.error('Google token Sign-In failed:', err);
+              setMessage('Google Sign-In authentication failed.');
+            }
+          },
+        });
+
+        const container = document.getElementById('google-signin-btn-container');
+        if (container) {
+          window.google.accounts.id.renderButton(container, {
+            theme: 'outline',
+            size: 'large',
+            shape: 'pill',
+            text: 'continue_with',
+          });
+        }
+      }
+    };
+
+    initializeGoogle();
+
+    // In case the script loads late, poll for google identity SDK
+    const timer = setInterval(() => {
+      if (typeof window !== 'undefined' && window.google?.accounts?.id) {
+        initializeGoogle();
+        clearInterval(timer);
+      }
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, [onGoogleSignInToken]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -76,19 +124,8 @@ export default function AuthPanel({ user, onSignIn, onSignUp, onSignOut, onGoogl
             >
               {mode === 'signup' ? 'Sign Up' : 'Sign In'}
             </button>
-            {/* Google OAuth button */}
-            <button
-              type="button"
-              onClick={onGoogleSignIn}
-              className="ml-2 rounded-full bg-white p-3 text-gray-800 shadow hover:bg-gray-100 transition"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 533.5 544.3" xmlns="http://www.w3.org/2000/svg">
-                <path d="M533.5 278.4c0-17.7-1.6-35-4.6-51.6H272v97.7h146.9c-6.3 33.9-25.5 62.6-54.3 81.8v68h87.9c51.4-47.4 80.9-117.3 80.9-196z" fill="#4285F4"/>
-                <path d="M272 544.3c73.6 0 135.4-24.5 180.5-66.5l-87.9-68c-24.5 16.4-55.8 26-92.6 26-71.1 0-131.4-48-152.9-112.5h-90v70.6c45.2 88.9 139.9 150.4 242.9 150.4z" fill="#34A853"/>
-                <path d="M119.1 323c-10.7-31.9-10.7-66.1 0-98v-70.6h-90c-38.5 73.6-38.5 159.6 0 233.2l90-64.6z" fill="#FBBC04"/>
-                <path d="M272 108.1c39.9-.6 78.5 14.8 107.5 41.9l80.3-80.3C417.2 22.9 345.6-2.5 272 0 168.9 0 74.2 61.5 29 150.4l90 70.6C140.6 156.1 200.9 108.1 272 108.1z" fill="#EA4335"/>
-              </svg>
-            </button>
+            {/* Google Identity Services native sign-in container */}
+            <div id="google-signin-btn-container" className="my-1"></div>
             <button
               type="button"
               className="text-xs text-orange-300 underline underline-offset-4 transition hover:text-orange-200"

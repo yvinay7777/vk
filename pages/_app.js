@@ -4,6 +4,7 @@ import { supabase, supabaseReady } from '../lib/supabase';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ParticlesBackground from '../components/ParticlesBackground';
+import Script from 'next/script';
 
 function MyApp({ Component, pageProps }) {
   const [user, setUser] = useState(null);
@@ -111,6 +112,28 @@ function MyApp({ Component, pageProps }) {
       setStatusMessage(`Google sign-in failed: ${error.message}`);
     } else {
       setStatusMessage('Redirecting to Google for authentication...');
+    }
+  };
+
+  const googleSignInWithToken = async (idToken) => {
+    if (!supabaseReady) {
+      const mockUser = { id: 'demo-user-id', email: 'google-user@navigator.ai' };
+      localStorage.setItem('demo_user', JSON.stringify(mockUser));
+      setUser(mockUser);
+      setStatusMessage('Demo Mode: Authenticated via Google Token simulation.');
+      router.push('/resume');
+      return;
+    }
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: idToken,
+    });
+    if (error) {
+      console.error('Google token sign-in error:', error);
+      setStatusMessage(`Google Sign-In failed: ${error.message}`);
+    } else {
+      setStatusMessage('Authenticated via Google Sign-In.');
+      router.push('/resume');
     }
   };
 
@@ -364,6 +387,7 @@ function MyApp({ Component, pageProps }) {
 
       {/* Main content route */}
       <main className="relative z-10 flex-1 mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
+        <Script src="https://accounts.google.com/gsi/client" strategy="lazyOnload" />
         <Component
           {...pageProps}
           user={user}
@@ -378,6 +402,7 @@ function MyApp({ Component, pageProps }) {
           signIn={signIn}
           signUp={signUp}
           onGoogleSignIn={googleSignIn}
+          onGoogleSignInToken={googleSignInWithToken}
           refreshJobs={refreshJobs}
           handleSaveJob={handleSaveJob}
           handleGenerateRecommendation={handleGenerateRecommendation}
