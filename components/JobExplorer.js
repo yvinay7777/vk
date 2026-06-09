@@ -34,9 +34,13 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
 
   const filteredJobs = useMemo(() => {
     const list = jobs.filter((job) => {
-      const text = `${job.title} ${job.company}`.toLowerCase();
+      const searchContent = `${job.title} ${job.company} ${job.location || ''} ${job.description || ''} ${(job.tags || []).join(' ')}`.toLowerCase();
       const query = keyword.trim().toLowerCase();
-      return (!query || text.includes(query)) && (!remoteOnly || text.includes('remote'));
+      
+      const matchesKeyword = !query || searchContent.includes(query);
+      const matchesRemote = !remoteOnly || searchContent.includes('remote');
+      
+      return matchesKeyword && matchesRemote;
     });
 
     if (resume) {
