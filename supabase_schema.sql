@@ -15,12 +15,15 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
+DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
 CREATE POLICY "Users can read own profile" ON public.profiles
     FOR SELECT USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 CREATE POLICY "Users can insert own profile" ON public.profiles
     FOR INSERT WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles
     FOR UPDATE USING (auth.uid() = id);
 
@@ -46,15 +49,19 @@ CREATE TABLE IF NOT EXISTS public.resumes (
 ALTER TABLE public.resumes ENABLE ROW LEVEL SECURITY;
 
 -- Resumes Policies
+DROP POLICY IF EXISTS "Users can select own resumes" ON public.resumes;
 CREATE POLICY "Users can select own resumes" ON public.resumes
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own resumes" ON public.resumes;
 CREATE POLICY "Users can insert own resumes" ON public.resumes
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own resumes" ON public.resumes;
 CREATE POLICY "Users can update own resumes" ON public.resumes
     FOR UPDATE USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own resumes" ON public.resumes;
 CREATE POLICY "Users can delete own resumes" ON public.resumes
     FOR DELETE USING (auth.uid() = user_id);
 
@@ -75,12 +82,15 @@ CREATE TABLE IF NOT EXISTS public.saved_jobs (
 ALTER TABLE public.saved_jobs ENABLE ROW LEVEL SECURITY;
 
 -- Saved Jobs Policies
+DROP POLICY IF EXISTS "Users can select own saved jobs" ON public.saved_jobs;
 CREATE POLICY "Users can select own saved jobs" ON public.saved_jobs
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own saved jobs" ON public.saved_jobs;
 CREATE POLICY "Users can insert own saved jobs" ON public.saved_jobs
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own saved jobs" ON public.saved_jobs;
 CREATE POLICY "Users can delete own saved jobs" ON public.saved_jobs
     FOR DELETE USING (auth.uid() = user_id);
 
@@ -99,10 +109,12 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Storage Policies for resumes bucket
 -- Allow public select/read of objects in resumes bucket
+DROP POLICY IF EXISTS "Public Read Access" ON storage.objects;
 CREATE POLICY "Public Read Access" ON storage.objects
     FOR SELECT USING (bucket_id = 'resumes');
 
 -- Allow authenticated upload to user's folder
+DROP POLICY IF EXISTS "Owner Upload Access" ON storage.objects;
 CREATE POLICY "Owner Upload Access" ON storage.objects
     FOR INSERT TO authenticated WITH CHECK (
         bucket_id = 'resumes' AND
@@ -110,6 +122,7 @@ CREATE POLICY "Owner Upload Access" ON storage.objects
     );
 
 -- Allow owner to delete their files
+DROP POLICY IF EXISTS "Owner Delete Access" ON storage.objects;
 CREATE POLICY "Owner Delete Access" ON storage.objects
     FOR DELETE TO authenticated USING (
         bucket_id = 'resumes' AND
