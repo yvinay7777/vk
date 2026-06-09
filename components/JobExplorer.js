@@ -33,14 +33,24 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
   const [remoteOnly, setRemoteOnly] = useState(true);
 
   const filteredJobs = useMemo(() => {
-    return jobs
-      .filter((job) => {
-        const text = `${job.title} ${job.company}`.toLowerCase();
-        const query = keyword.trim().toLowerCase();
-        return (!query || text.includes(query)) && (!remoteOnly || text.includes('remote'));
-      })
-      .slice(0, 100);
-  }, [jobs, keyword, remoteOnly]);
+    const list = jobs.filter((job) => {
+      const text = `${job.title} ${job.company}`.toLowerCase();
+      const query = keyword.trim().toLowerCase();
+      return (!query || text.includes(query)) && (!remoteOnly || text.includes('remote'));
+    });
+
+    if (resume) {
+      return list
+        .map((job) => {
+          const matchResult = computeMatch(resume, job);
+          return { ...job, ...matchResult };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 100);
+    }
+
+    return list.slice(0, 100);
+  }, [jobs, keyword, remoteOnly, resume]);
 
   return (
     <section className="glass-card rounded-[2rem] border border-orange-500/20 bg-slate-950/60 p-8 shadow-orangeGlow backdrop-blur-2xl">
@@ -80,9 +90,9 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
           No jobs found matching these filters.
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="flex flex-col gap-6">
           {filteredJobs.map((job) => {
-            const { score, label, missingSkills, jobSkills } = computeMatch(resume, job);
+            const { score, label, missingSkills, jobSkills } = (job.score !== undefined) ? job : computeMatch(resume, job);
             const saved = savedJobs.some((j) => (typeof j === 'string' ? j : j.jobId) === `${job.source}-${job.id}`);
             const recommendation = recommendations?.[`${job.source}-${job.id}`];
 

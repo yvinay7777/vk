@@ -45,16 +45,37 @@ function MyApp({ Component, pageProps }) {
                 last_login: new Date().toISOString(),
               });
           } catch (profileErr) {
-            console.error('Profile sync failed:', profileErr);
+            console.warn('Profile sync failed:', profileErr.message);
           }
           await loadSavedJobs(currentUser);
           await loadLatestResume(currentUser);
         } else {
-          setResume(null);
-          setSavedJobs([]);
+          // Guest User Mode: Load local guest data
+          const guestResume = localStorage.getItem('demo_resume_guest');
+          if (guestResume) {
+            setResume(JSON.parse(guestResume));
+          } else {
+            setResume(null);
+          }
+          const guestJobs = localStorage.getItem('demo_saved_jobs_guest');
+          if (guestJobs) {
+            setSavedJobs(JSON.parse(guestJobs));
+          } else {
+            setSavedJobs([]);
+          }
         }
       });
       subscription = data.subscription;
+    } else {
+      // Offline/demo: Load local guest data
+      const guestResume = localStorage.getItem('demo_resume_guest');
+      if (guestResume) {
+        setResume(JSON.parse(guestResume));
+      }
+      const guestJobs = localStorage.getItem('demo_saved_jobs_guest');
+      if (guestJobs) {
+        setSavedJobs(JSON.parse(guestJobs));
+      }
     }
 
     return () => {
@@ -78,7 +99,7 @@ function MyApp({ Component, pageProps }) {
       setStatusMessage('Secure account created.');
       router.push('/resume');
     } else {
-      setStatusMessage('Account registered! A verification email has been sent. Please check your inbox and confirm your email before signing in.');
+      setStatusMessage('Account registered! If email confirmation is enabled, check your inbox. Note: You can skip email verification by going to your Supabase Dashboard -> Authentication -> Providers -> Email and turning OFF "Confirm email".');
     }
   };
 
@@ -158,11 +179,16 @@ function MyApp({ Component, pageProps }) {
   };
 
   const loadLatestResume = async (currentUser) => {
-    if (!supabaseReady) {
-      const localResume = localStorage.getItem(`demo_resume_${currentUser.id}`);
+    const localKey = currentUser ? `demo_resume_${currentUser.id}` : 'demo_resume_guest';
+    const fallbackToLocal = () => {
+      const localResume = localStorage.getItem(localKey);
       if (localResume) {
         setResume(JSON.parse(localResume));
       }
+    };
+
+    if (!supabaseReady || !currentUser) {
+      fallbackToLocal();
       return;
     }
     try {
@@ -188,18 +214,26 @@ function MyApp({ Component, pageProps }) {
           summary: data[0].summary,
           score: data[0].score,
         });
+      } else {
+        fallbackToLocal();
       }
     } catch (err) {
-      console.error(err);
+      console.warn('Supabase resumes fetch failed, falling back to local storage:', err.message);
+      fallbackToLocal();
     }
   };
 
   const loadSavedJobs = async (currentUser) => {
-    if (!supabaseReady) {
-      const localJobs = localStorage.getItem(`demo_saved_jobs_${currentUser.id}`);
+    const localKey = currentUser ? `demo_saved_jobs_${currentUser.id}` : 'demo_saved_jobs_guest';
+    const fallbackToLocal = () => {
+      const localJobs = localStorage.getItem(localKey);
       if (localJobs) {
         setSavedJobs(JSON.parse(localJobs));
       }
+    };
+
+    if (!supabaseReady || !currentUser) {
+      fallbackToLocal();
       return;
     }
     try {
@@ -219,7 +253,8 @@ function MyApp({ Component, pageProps }) {
         url: job.url,
       })));
     } catch (err) {
-      console.error(err);
+      console.warn('Supabase saved_jobs fetch failed, falling back to local storage:', err.message);
+      fallbackToLocal();
     }
   };
 
@@ -244,15 +279,9 @@ function MyApp({ Component, pageProps }) {
   };
 
   const handleSaveJob = async (job) => {
-    if (!user) {
-      setStatusMessage('Sign in to save jobs.');
-      router.push('/auth');
-      return;
-    }
-
     const jobId = `${job.source}-${job.id}`;
-    if (!supabaseReady) {
-      const key = `demo_saved_jobs_${user.id}`;
+    const saveLocally = (userId) => {
+      const key = userId ? `demo_saved_jobs_${userId}` : 'demo_saved_jobs_guest';
       const savedList = JSON.parse(localStorage.getItem(key) || '[]');
       if (savedList.some((j) => j.jobId === jobId)) {
         setStatusMessage('Job already saved.');
@@ -268,7 +297,11 @@ function MyApp({ Component, pageProps }) {
       const updatedList = [newSavedJob, ...savedList];
       localStorage.setItem(key, JSON.stringify(updatedList));
       setSavedJobs(updatedList);
-      setStatusMessage('Demo Mode: Job saved locally.');
+      setStatusMessage('Job saved locally.');
+    };
+
+    if (!supabaseReady || !user) {
+      saveLocally(user?.id);
       return;
     }
     try {
@@ -295,8 +328,8 @@ function MyApp({ Component, pageProps }) {
         setStatusMessage('Job saved.');
       }
     } catch (error) {
-      console.error(error);
-      setStatusMessage('Unable to save job.');
+      console.warn('Supabase job insert failed, saving locally:', error.message);
+      saveLocally(user.id);
     }
   };
 

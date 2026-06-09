@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import ResumeUploader from '../components/ResumeUploader';
 import JobExplorer from '../components/JobExplorer';
 
@@ -14,30 +12,6 @@ export default function ResumePage({
   recommendations, 
   refreshJobs 
 }) {
-  const router = useRouter();
-
-  // Route guard: Redirect if user is not logged in
-  useEffect(() => {
-    const checkUser = async () => {
-      // Small timeout to allow auth session load
-      setTimeout(() => {
-        if (!user) {
-          router.push('/auth');
-        }
-      }, 600);
-    };
-    checkUser();
-  }, [user]);
-
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <span className="h-6 w-6 animate-spin rounded-full border-2 border-orange-500 border-t-transparent mb-4" />
-        <p className="text-slate-400 text-sm">Authenticating dashboard access...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-10 py-6">
       

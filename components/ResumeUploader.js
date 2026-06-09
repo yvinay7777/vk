@@ -66,20 +66,16 @@ export default function ResumeUploader({ user, onResumeSaved }) {
   const handleUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!user) {
-      setUploadMessage('Please sign in to upload a resume.');
-      return;
-    }
-    if (!supabaseReady) {
+    if (!user || !supabaseReady) {
       setUploading(true);
-      setUploadMessage('Scanning resume data nodes (Local Simulation)...');
+      setUploadMessage('Scanning resume data nodes (Local Mode)...');
       try {
         const text = await analyzeFile(file);
         const parsed = extractResumeData(text);
         const resumeId = `demo-resume-${Date.now()}`;
         const resumeData = {
           id: resumeId,
-          userId: user.id,
+          userId: user ? user.id : 'demo-guest',
           fileName: file.name,
           storagePath: 'local',
           url: '#',
@@ -90,12 +86,13 @@ export default function ResumeUploader({ user, onResumeSaved }) {
           summary: parsed.summary,
           score: parsed.score,
         };
-        localStorage.setItem(`demo_resume_${user.id}`, JSON.stringify(resumeData));
+        const key = user ? `demo_resume_${user.id}` : 'demo_resume_guest';
+        localStorage.setItem(key, JSON.stringify(resumeData));
         onResumeSaved(resumeData);
-        setUploadMessage('Scan complete. Credentials added to configuration dashboard (Local Simulation).');
+        setUploadMessage('Scan complete. Credentials added (Local Mode).');
       } catch (error) {
         console.error(error);
-        setUploadMessage('Demo Mode scan failed.');
+        setUploadMessage('Scan failed.');
       } finally {
         setUploading(false);
       }
