@@ -39,7 +39,7 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
         const query = keyword.trim().toLowerCase();
         return (!query || text.includes(query)) && (!remoteOnly || text.includes('remote'));
       })
-      .slice(0, 16);
+      .slice(0, 100);
   }, [jobs, keyword, remoteOnly]);
 
   return (
@@ -83,7 +83,7 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
         <div className="grid gap-6 md:grid-cols-2">
           {filteredJobs.map((job) => {
             const { score, label, missingSkills, jobSkills } = computeMatch(resume, job);
-            const saved = savedJobs.some((j) => j.jobId === `${job.source}-${job.id}`);
+            const saved = savedJobs.some((j) => (typeof j === 'string' ? j : j.jobId) === `${job.source}-${job.id}`);
             const recommendation = recommendations?.[`${job.source}-${job.id}`];
 
             return (
@@ -98,7 +98,7 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                       label === 'High Match' ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20' :
                       label === 'Medium Match' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/20' :
-                      'bg-slate-800 text-slate-300'
+                      'bg-red-500/15 text-red-300 border border-red-500/20'
                     }`}>{label}</span>
                   </div>
                   
@@ -110,8 +110,16 @@ export default function JobExplorer({ user, jobs, resume, savedJobs = [], onSave
                     ))}
                   </div>
                   
-                  <div className="mb-4 rounded-xl bg-orange-500/5 border border-orange-500/10 p-4 text-xs text-slate-300">
-                    <p className="font-bold text-orange-300">Sync Score: {score}%</p>
+                  <div className={`mb-4 rounded-xl p-4 text-xs ${
+                    label === 'High Match' ? 'bg-emerald-500/5 border border-emerald-500/10 text-slate-300' :
+                    label === 'Medium Match' ? 'bg-amber-500/5 border border-amber-500/10 text-slate-300' :
+                    'bg-red-500/5 border border-red-500/10 text-slate-300'
+                  }`}>
+                    <p className={`font-bold ${
+                      label === 'High Match' ? 'text-emerald-300' :
+                      label === 'Medium Match' ? 'text-amber-300' :
+                      'text-red-300'
+                    }`}>Sync Score: {score}%</p>
                     <p className="mt-1 text-slate-400">Missing: {missingSkills.slice(0, 5).join(', ') || 'None'}</p>
                   </div>
                   

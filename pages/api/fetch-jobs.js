@@ -4,7 +4,7 @@ export default async function handler(req, res) {
 
     // Fetch Remotive jobs
     try {
-        const remotiveResponse = await fetch('https://remotive.io/api/remote-jobs?limit=50');
+        const remotiveResponse = await fetch('https://remotive.io/api/remote-jobs?limit=100');
         if (remotiveResponse.ok) {
             const remotive = await remotiveResponse.json();
             remotiveJobs = (remotive.jobs || []).map((job) => ({

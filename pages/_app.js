@@ -355,9 +355,6 @@ function MyApp({ Component, pageProps }) {
             <Link href="/assistant" className={`transition hover:text-orange-400 ${router.pathname === '/assistant' ? 'text-orange-400' : 'text-slate-300'}`}>
               AI Coach
             </Link>
-            <Link href="/jobs" className={`transition hover:text-orange-400 ${router.pathname === '/jobs' ? 'text-orange-400' : 'text-slate-300'}`}>
-              Explore Jobs
-            </Link>
           </div>
 
           <div className="flex items-center gap-4">

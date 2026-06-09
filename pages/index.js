@@ -29,7 +29,7 @@ export default function Home({ user, jobs, statusMessage }) {
                 Sign In / Register
               </Link>
             )}
-            <Link href="/jobs" className="rounded-full border border-orange-500/30 bg-orange-950/15 px-8 py-3.5 text-sm font-semibold text-orange-200 hover:bg-orange-950/30 hover:border-orange-400/50 transition-all hover:shadow-orangeGlow">
+            <Link href="/resume" className="rounded-full border border-orange-500/30 bg-orange-950/15 px-8 py-3.5 text-sm font-semibold text-orange-200 hover:bg-orange-950/30 hover:border-orange-400/50 transition-all hover:shadow-orangeGlow">
               Explore Job Feeds
             </Link>
           </div>
@@ -97,7 +97,7 @@ export default function Home({ user, jobs, statusMessage }) {
               Explore live global job feeds synchronized every 15 minutes. Save matches straight to your cockpit list.
             </p>
           </div>
-          <Link href="/jobs" className="mt-6 text-sm font-semibold text-orange-400 hover:text-orange-300 transition-all inline-flex items-center gap-1.5">
+          <Link href="/resume" className="mt-6 text-sm font-semibold text-orange-400 hover:text-orange-300 transition-all inline-flex items-center gap-1.5">
             Query Job Feeds &rarr;
           </Link>
         </div>
